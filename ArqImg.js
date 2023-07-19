@@ -7,8 +7,8 @@ function renomearEMoverImagens(novoNome, token) {
 console.log("Arquivando...")
 
 const caminhoOrigem = 'Temp';
-const caminhoDestino = 'C:/Users/Micro/OneDrive/DBRetira/Imgs/Capture1';
-const caminhoDestino2 = 'C:/Users/Micro/OneDrive/DBRetira/Imgs/Capture2';
+const caminhoDestino = './DBRetira/Imgs/Capture1';
+const caminhoDestino2 = './DBRetira/Imgs/Capture2';
 
 const caminhoOriginalCapture1 = path.join(caminhoOrigem, token + '-1.png');
 const caminhoOriginalCapture2 = path.join(caminhoOrigem, token + '-2.png');

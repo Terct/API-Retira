@@ -3,7 +3,7 @@ const path = require('path');
 
 function BaixarImagem(imageName, capture, computerName) {
   return new Promise((resolve, reject) => {
-    const captureDirectory = `C:/Users/Micro/OneDrive/DBRetira/Imgs/${capture}`;
+    const captureDirectory = `./DBRetira/Imgs/${capture}`;
     const targetDirectory = path.join(__dirname, 'public', 'Users', computerName);
 
     // Verifica se a pasta existe
