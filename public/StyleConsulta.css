@@ -1,0 +1,212 @@
+/* Estilização do cabeçalho */
+header {
+  background-color: #f2f2f2;
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #333;
+  padding: 5px 10px;
+}
+
+nav ul li a:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Estilização do conteúdo */
+#content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 80px; /* Adiciona espaço para o rodapé */
+}
+
+h1#title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form#consultaForm {
+  margin-bottom: 20px;
+}
+
+.radio-group {
+  margin-bottom: 10px;
+}
+
+input[type="text"],
+input[type="date"] {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 20%;
+}
+
+button#btnConsultar {
+  background-color: #333;
+  color: #fff;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+table#resultadoConsulta {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table#resultadoConsulta th,
+table#resultadoConsulta td {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Estilização do rodapé */
+footer {
+  background-color: #333;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+  z-index: 9999;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+footer p {
+  margin: 0;
+}
+
+footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+ /* Login */
+/* Estilização do modal de login */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+}
+
+.modal-content {
+  position: relative;
+  width: 300px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+}
+
+/* Estilização do modal de login */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+}
+
+.modal-content {
+  position: relative;
+  width: 300px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+#loginForm {
+  margin-top: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#baseInput, #passwordInput{
+  width: 80%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+#btnConsultar{
+  width: 10%;
+}
+
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: none;
+}

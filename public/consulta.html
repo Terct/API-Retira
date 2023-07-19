@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <title>Página de Consulta</title>
+    <link rel="stylesheet" href="./StyleConsulta.css">
+    
+  </head>
+  <body>
+    <div id="loadingOverlay"></div>
+    
+    <header>
+      <nav>
+        <ul>
+          <li><a onclick="irRetira()">RETIRA</a></li>
+          <li><a href="#">CONSULTA</a></li>
+          <li><a onclick="irConfig()">CONFIGURAÇÕES</a></li>
+          <li><a href="/">SAIR</a></li>
+        </ul>
+      </nav>
+    </header>
+
+
+    <form id="consultaForm">
+    <h1 id="title" >Página de Consulta</h1>
+      <h2>Escolha o critério de consulta:</h2>
+      <input type="radio" name="consulta" value="codigo" id="radioCodigo">
+      <label for="radioCodigo">AWB:</label>
+      <input type="text" name="codigo" id="inputCodigo" placeholder="Digite o código">
+      <br>
+      <input type="radio" name="consulta" value="data" id="radioData">
+      <label for="radioData">Data específica:</label>
+      <input type="date" name="data" id="inputData">
+      <br>
+      <input type="radio" name="consulta" value="nome" id="radioNome">
+      <label for="radioNome">Nome de Recebedor:</label>
+      <input type="text" name="nome" id="inputNome" placeholder="Digite o nome">
+      <br>
+      <button type="submit" id="btnConsultar">Consultar</button>
+    </form>
+    <table id="resultadoConsulta">
+        <thead>
+          <tr>
+            <th>AWB</th>
+            <th>Data</th>
+            <th>Entregador</th>
+            <th>Recebedor</th>
+            <th>Obs</th>
+            <th>Captura</th>
+            <th>Anexo</th>
+            <th>Codigo Referência</th> 
+            <th>Código</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+  
+  
+      <div id="loginModal" class="modal">
+        <div class="modal-content">
+          <h2>Login</h2>
+          <form id="loginForm">
+            <label for="baseInput">Base:</label>
+            <input type="text" id="baseInput" required>
+            <label for="passwordInput">Senha:</label>
+            <input type="password" id="passwordInput" required>
+            <button type="submit">Entrar</button>
+          </form>
+        </div>
+      </div>
+    
+      
+    <script>
+
+      let TokenAtual = ""
+      // Obtém referências aos elementos relevantes
+      const consultaForm = document.getElementById('consultaForm');
+      const btnConsultar = document.getElementById('btnConsultar');
+      const inputCodigo = document.getElementById('inputCodigo');
+      const inputData = document.getElementById('inputData');
+      const inputNome = document.getElementById('inputNome');
+      
+
+      // Define o manipulador de evento para o evento submit do formulário
+      consultaForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        //showLoadingOverlay()
+
+        // Obtém os valores dos campos de entrada
+        const criterioSelecionado = document.querySelector('input[name="consulta"]:checked');
+        if (!criterioSelecionado) {
+          console.error('Selecione um critério de consulta.');
+          return;
+        }
+
+        const criterio = criterioSelecionado.value;
+        let valor;
+
+        if (criterio === 'data') {
+          valor = inputData.value;
+        } else if (criterio === 'nome') {
+          valor = inputNome.value;
+        } else {
+          valor = inputCodigo.value;
+        }
+
+        //console.log(criterio)
+        //console.log(valor)
+        var urlParams = new URLSearchParams(window.location.search);
+        var baseParam = urlParams.get('base');
+
+
+        // Envia a solicitação POST para a rota de consulta
+        fetch('/consulta', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ criterio, valor, baseParam })
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Erro na solicitação. Verifique se a rota de consulta está correta.');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Limpa a tabela de resultados
+            resultadoConsulta.innerHTML = '';
+
+            // Cria uma linha de cabeçalho
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `
+            <th>AWB</th>
+              <th>Data</th>
+              <th>Entregador</th>
+              <th>Recebedor</th>
+              <th>Obs</th>
+              <th>Captura</th>
+              <th>Anexo</th>
+              <th>Codigo Referência</th>
+              <th>Código</th>
+              
+            `;
+            resultadoConsulta.appendChild(headerRow);
+
+            // Preenche a tabela com os resultados da consulta
+
+          var urlParams = new URLSearchParams(window.location.search);
+          var tokenParam = urlParams.get('token');
+
+
+// Preenche a tabela com os resultados da consulta
+data.forEach(item => {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${item.AWB}</td>
+    <td>${item.Data}</td>
+    <td>${item.Entregador}</td>
+    <td>${item.Recebedor}</td>
+    <td title="${item.Obs}">${item.Obs.length > 10 ? item.Obs.substr(0, 10) + '...' : item.Obs}</td>
+    <td>${item.Capture1 ? `<a href="#" onclick="solicitarImagem('${item.CodigoReferencia}', 'Capture1', '${tokenParam}')">Visualizar</a>` : ''}</td>
+    <td>${item.Capture2 ? `<a href="#" onclick="solicitarImagem('${item.CodigoReferencia}', 'Capture2', '${tokenParam}')">Visualizar</a>` : ''}</td>
+    <td title="${item.CodigoReferencia}">${item.CodigoReferencia.length > 10 ? item.CodigoReferencia.substr(0, 10) + '...' : item.CodigoReferencia}</td>
+    <td>${item.Código}</td>
+  `;
+  resultadoConsulta.appendChild(row);
+  hideLoadingOverlay()
+});
+
+
+
+          })
+          .catch(error => {
+            console.error(error.message);
+          });
+      });
+
+
+      // Função para solicitar a imagem
+function solicitarImagem(CodRef, CapType, UserName) {
+  fetch('/View', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ CodRef, CapType, UserName })
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro na solicitação. Verifique se a rota de visualização está correta.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data); // Manipule a resposta da solicitação de acordo com suas necessidades
+      abrirNovaPaginaComImagem(data.directory);
+    })
+    .catch(error => {
+      console.error(error.message);
+    });
+}
+
+function abrirNovaPaginaComImagem(directory) {
+  // Extrai o nome do arquivo da parte final do diretório
+  var fileName = directory.split('\\').pop();
+
+  // Cria a nova URL substituindo a parte inicial do diretório
+  var novaURL = 'http://localhost:3000/Users/' + directory.replace(/.*public\\Users\\/, '');
+
+  // Abre uma nova página com a nova URL
+  window.open(novaURL, '_blank');
+}
+
+
+
+// Função para gerar um token aleatório
+function gerarToken() {
+  // Tamanho do token desejado
+  var tamanhoToken = 19;
+
+  // Caracteres permitidos no token
+  var caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  // Variável para armazenar o token gerado
+  var token = '';
+
+  // Loop para gerar o token
+  for (var i = 0; i < tamanhoToken; i++) {
+    token += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+  }
+
+  // Retornar o token gerado
+  return token;
+}
+
+// Verificar se já existe um token na URL
+var urlParams = new URLSearchParams(window.location.search);
+var tokenParam = urlParams.get('token');
+
+// Adicionar evento beforeunload
+window.addEventListener('beforeunload', function(event) {
+  // Redirecionar para outra página
+  DeletarSelect()
+});
+
+
+if (!tokenParam) {
+  // Gerar o token
+  var token = gerarToken();
+
+  // Atualizar a URL com o novo token
+  urlParams.set('token', token);
+  window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
+
+  // Redirecionar para a mesma página com o token como parâmetro
+  window.location.href = `${location.pathname}?${urlParams}`;
+}
+
+
+
+var urlParams = new URLSearchParams(window.location.search);
+var baseParam = urlParams.get('base');
+
+if (!baseParam) {
+  // Se o parâmetro "base" não estiver presente, exibe o modal de login
+  const loginModal = document.getElementById('loginModal');
+  loginModal.style.display = 'block';
+
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const baseInput = document.getElementById('baseInput');
+    const passwordInput = document.getElementById('passwordInput');
+
+    // Envia as credenciais de login para o servidor
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        base: baseInput.value,
+        senha: passwordInput.value
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        // Se o login for bem-sucedido, redireciona para a página inicial mantendo os parâmetros existentes
+        var queryParams = new URLSearchParams(window.location.search);
+        queryParams.set('base', baseInput.value);
+
+        const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+        window.location.href = newUrl;
+      } else {
+        // Exibe uma mensagem de erro caso as credenciais sejam inválidas
+        alert('Credenciais inválidas. Por favor, tente novamente.');
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao realizar o login:', error);
+      alert('Ocorreu um erro ao realizar o login. Por favor, tente novamente mais tarde.');
+    });
+  });
+
+  const closeModal = () => {
+    loginModal.style.display = 'none';
+  };
+
+  const closeBtn = document.getElementsByClassName('close')[0];
+  closeBtn.addEventListener('click', closeModal);
+
+  //window.addEventListener('click', (event) => {
+   // if (event.target === loginModal) {
+     // closeModal();
+    //}
+  //});
+
+
+}else{
+
+  loginModal.style.display = 'none';
+
+}
+
+function irRetira(){
+
+// Obter o valor atual do parâmetro "base" da URL
+const urlParams = new URLSearchParams(window.location.search);
+const baseParam = urlParams.get('base');
+
+// Redirecionar para a página de consulta com o parâmetro "base" mantido
+window.location.href = `http://localhost:3000/?base=${baseParam}`;
+
+}
+
+function irConfig(){
+
+// Obter o valor atual do parâmetro "base" da URL
+const urlParams = new URLSearchParams(window.location.search);
+const baseParam = urlParams.get('base');
+
+// Redirecionar para a página de consulta com o parâmetro "base" mantido
+window.location.href = `http://localhost:3000/geral?base=${baseParam}`;
+
+}
+
+
+function showLoadingOverlay() {
+    document.getElementById('loadingOverlay').style.display = 'block';
+  }
+
+  function hideLoadingOverlay() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+  }
+
+
+
+    </script>
+
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+
+
+<footer>
+  <p>&copy; 2023 Armando Castro. Todos os direitos reservados.</p>
+  <p>Celular: (99) 9 91813125</p>
+  <p></p>
+  <p>E-mail: armandocastrodesoua@gmail.com</p>
+</footer>
+
+  </body>
+</html>

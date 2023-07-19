@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Retirada</title>
+  <script src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+  <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+  <div id="loadingOverlay"></div>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="#">RETIRA</a></li>
+        <li><a onclick="irConsulta()">CONSULTA</a></li>
+        <li><a onclick="irConfig()">CONFIGURAÇÕES</a></li>
+        <li><a href="/">SAIR</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <h2 id="Title">Efetuar Retirada</h2>
+
+  <div id="IMGS">
+    <div id="videoContainer1">
+      <video id="video1" width="420" height="260" autoplay style="display: none;"></video>
+    </div>
+    <div id="videoContainer2">
+      <video id="video2" width="420" height="260" autoplay></video>
+    </div>
+
+    <div id="imageContainer" style="display: none;">
+      <img id="capturedImage" width="420" height="286">
+    </div>
+
+    <div id="resultContainer">
+      <p id="resultText">Aguardando leitura do QR code...</p>    
+
+    </div>
+
+    <hr style="border: none; border-top: 1px solid black; margin: 20px 0; max-width: 450px;">
+
+    <div id="videoContainer3">
+      <video id="video3" width="420" height="260" autoplay style="display: none;"></video>
+    </div>
+
+    <div id="imageContainer2" style="display: none;">
+      <img id="capturedImage2" width="420" height="260">
+    </div>
+  </div>
+  
+  
+  <div id="Dados">
+    <label for="AWB">AWB</label>
+    <h4 id="AWB">Aguardando Dados...</h4>
+
+    <label for="Data">Data da Retirada</label>
+    <h4 id="Data">Aguardando Dados...</h4>
+
+    <label for="Entregador">Entregador</label>
+    <div></div>
+    <input id="Entregador" type="text">
+    <div></div>
+    <label for="Recebedor">Recebedor</label>
+    <div></div>
+    <input id="Recebedor" type="text">
+    <div></div>
+    <label for="Obs">Observção</label>
+    <div></div>
+    <textarea id="Obs" type="text"></textarea>
+  </div>
+
+  <button id="NovaImagem" onclick="TirarOutra()">TIRAR OUTRA</button>
+  <button id="Salvar" onclick="capture()" >SALVAR IMAGEM</button>
+
+  <button id="AnexarNovaImagem" onclick="AnexarOutros()">ANEXAR OUTROS</button>
+
+  <button id="NovaImagem2" onclick="TirarOutra2()" style="display: none;">TIRAR OUTRA</button>
+  <button id="Salvar2" onclick="capture2()" style="display: none;">SALVAR IMAGEM</button>
+
+
+  <button id="EfetuarRetira" onclick="SalvarDados()">EFETUAR RETIRADA</button>
+  
+
+
+  
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <label for="baseInput">Base:</label>
+        <input type="text" id="baseInput" required>
+        <label for="passwordInput">Senha:</label>
+        <input type="password" id="passwordInput" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  
+  <script>
+
+    let randomCode = ""
+
+function generateRandomCode(length) {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let code = '';
+
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters.charAt(randomIndex);
+      }
+
+      return code;
+    }
+
+    function generateAndDisplayCode() {
+      randomCode = generateRandomCode(47);
+    }
+    
+  const videoElement1 = document.getElementById('video1');
+  const videoElement2 = document.getElementById('video2');
+  const videoElement3 = document.getElementById('video3');
+
+  const resultTextElement = document.getElementById('resultText');
+  const imageContainer = document.getElementById('imageContainer');
+  const capturedImageElement = document.getElementById('capturedImage');
+  const capturedImageElement2 = document.getElementById('capturedImage2');
+
+  const ButtonAnexarOutro = document.getElementById('AnexarNovaImagem');
+ 
+  function AnexarOutros(){
+
+    ButtonAnexarOutro.style.display = 'none'
+    document.getElementById('video3').style.display = 'block'
+    document.getElementById('NovaImagem2').style.display = 'block'
+    document.getElementById('Salvar2').style.display = 'block'
+    
+
+  }
+  function TirarOutra(){
+
+    videoElement2.style.display = "block"
+    capturedImageElement.style.display = "none"
+
+}
+function TirarOutra2(){
+
+videoElement3.style.display = "block"
+capturedImageElement2.style.display = "none"
+
+}
+
+
+
+      // Função para carregar o arquivo JSON
+  function loadJSON(callback) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType('application/json');
+    xobj.open('GET', 'Users.json', true);
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState === 4 && xobj.status === 200) {
+        callback(xobj.responseText);
+      }
+    };
+    xobj.send(null);
+  }
+
+  function searchEntregador(codigo) {
+  var entregadorInput = document.getElementById('Entregador');
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var baseParam = urlParams.get('base');
+
+
+
+  fetch('/config?base=' + encodeURIComponent(baseParam))
+    .then(function(response) {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Erro na resposta do servidor');
+      }
+    })
+    .then(function(users) {
+      // Procura o código no array de usuários
+      var user = users.find(function(user) {
+        return user.codigo === codigo;
+      });
+
+      if (user) {
+        entregadorInput.value = user.nome;
+      } else {
+      }
+    })
+    .catch(function(error) {
+      console.error('Erro na solicitação:', error);
+      alert('Ocorreu um erro ao buscar o usuário. Por favor, tente novamente.');
+    });
+}
+  // Evento para chamar a função searchEntregador quando o valor do campo de entrada for alterado
+  document.getElementById('Entregador').addEventListener('input', function () {
+    var codigo = this.value;
+    searchEntregador(codigo);
+  });
+
+
+// Obtendo a data atual
+    var dataAtual = new Date();
+
+    // Obtendo o dia, mês e ano
+    var dia = String(dataAtual.getDate()).padStart(2, '0');
+    var mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // Os meses são indexados a partir de zero
+    var ano = dataAtual.getFullYear();
+
+    // Formatando a data no formato desejado
+    var dataFormatada = dia + '/' + mes + '/' + ano;
+
+
+
+    let scanner;
+
+    function startVideoStream() {
+      scanner = new Instascan.Scanner({ video: videoElement1 });
+      scanner.addListener('scan', function (content) {
+        var extractedDigits = content.substring(0, 11);
+        resultTextElement.textContent = "AWB Coletada!";
+
+        document.getElementById('AWB').textContent = extractedDigits;
+        document.getElementById('Data').textContent = dataFormatada;
+      });
+
+      Instascan.Camera.getCameras()
+        .then(function (cameras) {
+          if (cameras.length > 0) {
+            scanner.start(cameras[0]);
+          } else {
+            console.error('Não foi encontrada nenhuma câmera.');
+          }
+        })
+        .catch(function (error) {
+          console.error('Erro ao acessar a câmera:', error);
+        });
+    }
+
+    function startVideoStream2() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+          videoElement2.srcObject = stream;
+        })
+        .catch(function (error) {
+          console.error('Erro ao acessar a câmera:', error);
+        });
+    }
+
+    function startVideoStream3() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+          videoElement3.srcObject = stream;
+        })
+        .catch(function (error) {
+          console.error('Erro ao acessar a câmera:', error);
+        });
+    }
+
+
+
+    function capture() {
+
+      capturedImageElement.style.display = 'block'
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const videoElement2 = document.getElementById('video2');
+
+      // Define as dimensões do canvas de acordo com o tamanho do vídeo
+      canvas.width = videoElement2.videoWidth;
+      canvas.height = videoElement2.videoHeight;
+
+      // Desenha o quadro atual do vídeo no canvas
+      context.drawImage(videoElement2, 0, 0, canvas.width, canvas.height);
+
+      // Obtém a imagem do canvas como uma representação base64
+      const imageBase64 = canvas.toDataURL('image/png');
+
+      // Exibe a imagem capturada
+      capturedImageElement.src = imageBase64;
+      imageContainer.style.display = 'block';
+
+      // Oculta a webcam
+      videoElement2.style.display = 'none';
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var tokenParam = urlParams.get('token');
+
+
+      // Realiza a solicitação POST para enviar a captura para o servidor
+      fetch('/capture', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: imageBase64, TokenAtual: tokenParam }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log('Captura enviada com sucesso.');
+          } else {
+            console.error('Erro ao enviar a captura:', response.status);
+          }
+        })
+        .catch((error) => {
+          console.error('Erro ao enviar a captura:', error);
+        });
+    }
+
+
+  function capture2() {
+
+  capturedImageElement2.style.display = 'block'
+
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  const videoElement3 = document.getElementById('video3');
+
+  // Define as dimensões do canvas de acordo com o tamanho do vídeo
+  canvas.width = videoElement3.videoWidth;
+  canvas.height = videoElement3.videoHeight;
+
+  // Desenha o quadro atual do vídeo no canvas
+  context.drawImage(videoElement3, 0, 0, canvas.width, canvas.height);
+
+  // Obtém a imagem do canvas como uma representação base64
+  const imageBase64 = canvas.toDataURL('image/png');
+
+  // Exibe a imagem capturada
+  capturedImageElement2.src = imageBase64;
+  imageContainer2.style.display = 'block';
+
+  // Oculta a webcam
+  videoElement3.style.display = 'none';
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var tokenParam = urlParams.get('token');
+
+
+  // Realiza a solicitação POST para enviar a captura para o servidor
+  fetch('/capture2', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ image: imageBase64, TokenAtual: tokenParam}),
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log('Segunda captura enviada com sucesso.');
+      } else {
+        console.error('Erro ao enviar a segunda captura:', response.status);
+      }
+    })
+    .catch((error) => {
+      console.error('Erro ao enviar a segunda captura:', error);
+    });
+}
+
+function SalvarDados() {
+  showLoadingOverlay();
+  // Extrair os dados do formulário
+  const awb = document.getElementById('AWB').textContent;
+  const data = document.getElementById('Data').textContent;
+  const entregador = document.getElementById('Entregador').value;
+  const recebedor = document.getElementById('Recebedor').value;
+  const obs = document.getElementById('Obs').value;
+  let captureImagem1 = false;
+  let captureImagem2 = false;
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var baseParam = urlParams.get('base');
+
+
+  if (imageContainer.style.display == "none") {
+  
+} else {
+  captureImagem1 = true;
+}
+
+if (imageContainer2.style.display == "none") {
+
+} else {
+  captureImagem2 = true;
+}
+
+  //DeletarImg(); 
+
+  generateAndDisplayCode()
+  const codigoReferencia = randomCode; // Definir o valor de acordo com a lógica apropriada
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var tokenParam = urlParams.get('token');
+
+  ArquivarImagens(randomCode)
+  
+  // Criar um objeto com os dados
+  const dataObj = {
+    awb,
+    data,
+    entregador,
+    recebedor,
+    obs,
+    captureImagem1,
+    captureImagem2,
+    codigoReferencia,
+    baseParam 
+  };
+
+  // Fazer a requisição POST para a API
+  fetch('/save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dataObj)
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log('Dados enviados com sucesso!');
+        alert("Dados Salvos com sucesso")
+        
+                // Obter o valor atual do parâmetro "base" da URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var baseParam = urlParams.get('base');
+
+        // Redirecionar para uma nova URL com o parâmetro "base" mantido
+        window.location.href = `http://localhost:3000?base=${baseParam}`;
+
+
+        // Fazer algo após o envio bem-sucedido dos dados, se necessário
+      } else {
+        console.error('Erro ao enviar os dados:', response.status);
+        alert("Ocorreu um erro ao efetuar a retira, tente novamente", error)
+        
+        // Fazer algo em caso de erro no envio dos dados, se necessário
+      }
+    })
+    .catch((error) => {
+      console.error('Erro ao enviar os dados:', error);
+      alert("Ocorreu um erro ao efetuar a retira, tente novamente", error)
+      // Fazer algo em caso de erro na requisição, se necessário
+    });
+
+
+    hideLoadingOverlay
+}
+
+    function DeletarImg(){
+    
+      
+  var urlParams = new URLSearchParams(window.location.search);
+  var tokenParam = urlParams.get('token');
+
+
+      fetch('/del', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ token : tokenParam })
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log('Deletado com sucesso!');
+
+        // Fazer algo após o envio bem-sucedido dos dados, se necessário
+      } else {
+        console.error('Erro ao deletar:', response.status);
+       
+        // Fazer algo em caso de erro no envio dos dados, se necessário
+      }
+    })
+    .catch((error) => {
+      console.error('Erro ao deletar:', error);
+
+      // Fazer algo em caso de erro na requisição, se necessário
+    });
+}
+
+
+function DeletarSelect(){
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var tokenParam = urlParams.get('token');
+
+
+      fetch('/delSelect', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token : tokenParam })
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log('Deletado com sucesso!');
+  
+          // Fazer algo após o envio bem-sucedido dos dados, se necessário
+        } else {
+          console.error('Erro ao deletar:', response.status);
+         
+          // Fazer algo em caso de erro no envio dos dados, se necessário
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao deletar:', error);
+  
+        // Fazer algo em caso de erro na requisição, se necessário
+      });
+  }
+  
+
+function ArquivarImagens(){
+  
+  const codeimg = randomCode
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var tokenParam = urlParams.get('token');
+
+  const token = tokenParam
+
+  const dataObj = {
+    codeimg,
+    token
+  };
+    
+  fetch('/arq', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(dataObj)
+})
+  .then((response) => {
+    if (response.ok) {
+      console.log('Arquivado com sucesso!');
+
+      // Fazer algo após o envio bem-sucedido dos dados, se necessário
+    } else {
+      console.error('Erro ao arquivar:', response.status);
+     
+      // Fazer algo em caso de erro no envio dos dados, se necessário
+    }
+  })
+  .catch((error) => {
+    console.error('Erro ao arquivar:', error);
+
+    // Fazer algo em caso de erro na requisição, se necessário
+  });
+}
+
+
+
+// Função para gerar um token aleatório
+function gerarToken() {
+  // Tamanho do token desejado
+  var tamanhoToken = 19;
+
+  // Caracteres permitidos no token
+  var caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  // Variável para armazenar o token gerado
+  var token = '';
+
+  // Loop para gerar o token
+  for (var i = 0; i < tamanhoToken; i++) {
+    token += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+  }
+
+  // Retornar o token gerado
+  return token;
+}
+
+// Verificar se já existe um token na URL
+var urlParams = new URLSearchParams(window.location.search);
+var tokenParam = urlParams.get('token');
+
+// Adicionar evento beforeunload
+window.addEventListener('beforeunload', function(event) {
+  // Redirecionar para outra página
+  DeletarSelect()
+});
+
+
+if (!tokenParam) {
+  // Gerar o token
+  var token = gerarToken();
+
+  // Atualizar a URL com o novo token
+  urlParams.set('token', token);
+  window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
+
+  // Redirecionar para a mesma página com o token como parâmetro
+  window.location.href = `${location.pathname}?${urlParams}`;
+}
+
+
+
+var urlParams = new URLSearchParams(window.location.search);
+var baseParam = urlParams.get('base');
+
+if (!baseParam) {
+  // Se o parâmetro "base" não estiver presente, exibe o modal de login
+  const loginModal = document.getElementById('loginModal');
+  loginModal.style.display = 'block';
+
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const baseInput = document.getElementById('baseInput');
+    const passwordInput = document.getElementById('passwordInput');
+
+    // Envia as credenciais de login para o servidor
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        base: baseInput.value,
+        senha: passwordInput.value
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        // Se o login for bem-sucedido, redireciona para a página inicial mantendo os parâmetros existentes
+        var queryParams = new URLSearchParams(window.location.search);
+        queryParams.set('base', baseInput.value);
+
+        const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+        window.location.href = newUrl;
+      } else {
+        // Exibe uma mensagem de erro caso as credenciais sejam inválidas
+        alert('Credenciais inválidas. Por favor, tente novamente.');
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao realizar o login:', error);
+      alert('Ocorreu um erro ao realizar o login. Por favor, tente novamente mais tarde.');
+    });
+  });
+
+  const closeModal = () => {
+    loginModal.style.display = 'none';
+  };
+
+  const closeBtn = document.getElementsByClassName('close')[0];
+  closeBtn.addEventListener('click', closeModal);
+
+  //window.addEventListener('click', (event) => {
+   // if (event.target === loginModal) {
+     // closeModal();
+    //}
+  //});
+
+
+}else{
+
+  loginModal.style.display = 'none';
+
+}
+
+function irConsulta(){
+
+  // Obter o valor atual do parâmetro "base" da URL
+const urlParams = new URLSearchParams(window.location.search);
+const baseParam = urlParams.get('base');
+
+// Redirecionar para a página de consulta com o parâmetro "base" mantido
+window.location.href = `http://localhost:3000/consulta?base=${baseParam}`;
+
+}
+
+function irConfig(){
+
+// Obter o valor atual do parâmetro "base" da URL
+const urlParams = new URLSearchParams(window.location.search);
+const baseParam = urlParams.get('base');
+
+// Redirecionar para a página de consulta com o parâmetro "base" mantido
+window.location.href = `http://localhost:3000/geral?base=${baseParam}`;
+
+}
+
+
+function showLoadingOverlay() {
+    document.getElementById('loadingOverlay').style.display = 'block';
+  }
+
+  function hideLoadingOverlay() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+  }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      startVideoStream();
+      startVideoStream2();
+      startVideoStream3();
+    });
+  </script>
+
+
+<footer>
+  <p>&copy; 2023 Armando Castro. Todos os direitos reservados.</p>
+  <p>Celular: (99) 9 91813125</p>
+  <p></p>
+  <p>E-mail: armandocastrodesoua@gmail.com</p>
+</footer>
+
+</body>
+</html>

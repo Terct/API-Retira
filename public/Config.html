@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configurações</title>
+  <link rel="stylesheet" href="StyleConfig.css">
+</head>
+<body>
+
+  <div id="loadingOverlay"></div>
+  
+  <header>
+    <nav>
+      <ul>
+        <li><a onclick="irRetira()">RETIRA</a></li>
+        <li><a onclick="irConsulta()">CONSULTA</a></li>
+        <li><a onclick="">CONFIGURAÇÕES</a></li>
+        <li><a href="/">SAIR</a></li>
+      </ul>
+    </nav>
+  </header>
+
+    
+  <h2 id="baseValue"></h2>
+
+
+
+    
+  <form id="newUserForm">
+    <h3>Novo Código</h3>
+    <label for="newUserCode">Código:</label>
+    <input type="text" id="newUserCode" required>
+    <label for="newUserName">Nome:</label>
+    <input type="text" id="newUserName" required>
+    <br></br>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+
+
+
+
+  <table id="usersTable">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nome</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dados do arquivo Users.json serão adicionados aqui -->
+    </tbody>
+  </table>
+
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Obtém o valor do parâmetro 'base' da URL
+      var urlParams = new URLSearchParams(window.location.search);
+      var baseParam = urlParams.get('base');
+  
+      // Atualiza o elemento <h3> com o valor do parâmetro 'base'
+      var baseValueElement = document.getElementById('baseValue');
+      baseValueElement.textContent = baseParam;
+  
+      // Faz a solicitação para buscar os dados do arquivo Users.json no servidor
+      fetch('/config?base=' + encodeURIComponent(baseParam))
+        .then(function(response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .then(function(data) {
+          // Remove as linhas existentes na tabela
+          var usersTableBody = document.getElementById('usersTable').querySelector('tbody');
+          while (usersTableBody.firstChild) {
+            usersTableBody.firstChild.remove();
+          }
+  
+          // Adiciona os dados do arquivo Users.json na tabela
+          for (var i = 0; i < data.length; i++) {
+            var user = data[i];
+  
+            var row = document.createElement('tr');
+  
+            var codigoCell = document.createElement('td');
+            codigoCell.textContent = user.codigo;
+            row.appendChild(codigoCell);
+  
+            var nomeCell = document.createElement('td');
+            nomeCell.textContent = user.nome;
+            row.appendChild(nomeCell);
+  
+            usersTableBody.appendChild(row);
+          }
+        })
+        .catch(function(error) {
+          console.error('Erro na solicitação:', error);
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    var newUserForm = document.getElementById('newUserForm');
+    var baseParam = document.getElementById('baseValue').textContent;
+
+    newUserForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Obtém os valores do código e nome do novo usuário
+      var newUserCode = document.getElementById('newUserCode').value;
+      var newUserName = document.getElementById('newUserName').value;
+
+      // Faz a solicitação para cadastrar o novo usuário
+      fetch('/users?base=' + encodeURIComponent(baseParam), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          codigo: newUserCode,
+          nome: newUserName
+        })
+      })
+        .then(function(response) {
+          if (response.ok) {
+            alert('Novo usuário cadastrado com sucesso!');
+            // Limpa os campos do formulário
+            newUserForm.reset();
+            location.reload();
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(function(error) {
+          console.error('Erro na solicitação:', error);
+          alert('Ocorreu um erro ao cadastrar o novo usuário. Por favor, tente novamente.');
+        });
+    });
+  });
+
+
+function irRetira(){
+
+// Obter o valor atual do parâmetro "base" da URL
+const urlParams = new URLSearchParams(window.location.search);
+const baseParam = urlParams.get('base');
+
+// Redirecionar para a página de consulta com o parâmetro "base" mantido
+window.location.href = `http://localhost:3000/?base=${baseParam}`;
+
+}
+function irConsulta(){
+
+// Obter o valor atual do parâmetro "base" da URL
+const urlParams = new URLSearchParams(window.location.search);
+const baseParam = urlParams.get('base');
+
+// Redirecionar para a página de consulta com o parâmetro "base" mantido
+window.location.href = `http://localhost:3000/consulta?base=${baseParam}`;
+
+}
+
+
+
+  </script>
+  
+
+  
+  <br></br>
+  <br></br>
+  <br></br>
+  <footer>
+    <p>&copy; 2023 Armando Castro. Todos os direitos reservados.</p>
+    <p>Celular: (99) 9 91813125</p>
+    <p></p>
+    <p>E-mail: armandocastrodesoua@gmail.com</p>
+  </footer>
+  
+</body>
+</html>
