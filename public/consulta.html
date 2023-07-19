@@ -206,7 +206,7 @@ function abrirNovaPaginaComImagem(directory) {
   var fileName = directory.split('\\').pop();
 
   // Cria a nova URL substituindo a parte inicial do diretório
-  var novaURL = 'http://localhost:3000/Users/' + directory.replace(/.*public\\Users\\/, '');
+  var novaURL = 'http://44.211.218.29:3000/Users/' + directory.replace(/.*public\\Users\\/, '');
 
   // Abre uma nova página com a nova URL
   window.open(novaURL, '_blank');
@@ -331,7 +331,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const baseParam = urlParams.get('base');
 
 // Redirecionar para a página de consulta com o parâmetro "base" mantido
-window.location.href = `http://localhost:3000/?base=${baseParam}`;
+window.location.href = `http://44.211.218.29:3000/?base=${baseParam}`;
 
 }
 
@@ -342,7 +342,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const baseParam = urlParams.get('base');
 
 // Redirecionar para a página de consulta com o parâmetro "base" mantido
-window.location.href = `http://localhost:3000/geral?base=${baseParam}`;
+window.location.href = `http://44.211.218.29:3000/geral?base=${baseParam}`;
 
 }
 

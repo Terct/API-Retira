@@ -109,6 +109,11 @@ app.get('/consulta', (req, res) => {
   res.sendFile(__dirname + '/public/consulta.html');
 });
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/Index.html.html');
+});
+
+
 app.post('/consulta', (req, res) => {
   const criterio = req.body.criterio;
   const valor = req.body.valor;
