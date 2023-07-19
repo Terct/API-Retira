@@ -1,45 +1,67 @@
-const ADODB = require('node-adodb');
+const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 
-function ConsultarDados(criterio, valor, base) {
-  return new Promise((resolve, reject) => {
-    const dbPath = path.join('DataBase', base, 'Data.mdb');
-    const connectionString = `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${dbPath};`;
-    const connection = ADODB.open(connectionString);
 
-    let query = '';
-  
+// Função para consultar dados na tabela "Dados"
+async function ConsultarDados(criterio, valor, base) {
+
+  const dbPath = path.join('DataBase', base, 'Data.db'); // Atualize o caminho para o arquivo do banco de dados
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: dbPath,
+});
+
+const Dados = sequelize.define('Dados', {
+  AWB: { type: DataTypes.STRING, allowNull: false },
+  Data: { type: DataTypes.STRING, allowNull: false },
+  Entregador: { type: DataTypes.STRING, allowNull: false },
+  Recebedor: { type: DataTypes.STRING, allowNull: false },
+  Obs: { type: DataTypes.STRING, allowNull: false },
+  Capture1: { type: DataTypes.BOOLEAN, allowNull: false },
+  Capture2: { type: DataTypes.BOOLEAN, allowNull: false },
+  CodigoReferencia: { type: DataTypes.STRING, allowNull: false },
+});
+
+  try {
+    await sequelize.authenticate(); // Conecta ao banco de dados
+    await Dados.sync(); // Cria a tabela se ainda não existir
+
+    let data;
     switch (criterio) {
       case 'codigo':
-        query = `SELECT * FROM Dados WHERE AWB='${valor}';`;
+        data = await Dados.findAll({ where: { AWB: valor } });
         break;
       case 'data':
-        query = `SELECT * FROM Dados WHERE Data='${valor}';`;
+        data = await Dados.findAll({ where: { Data: valor } });
         break;
       case 'nome':
-        query = `SELECT * FROM Dados WHERE Recebedor='${valor}';`;
+        data = await Dados.findAll({ where: { Recebedor: valor } });
         break;
       default:
-        reject('Critério inválido.');
-        return;
+        throw new Error('Critério inválido.');
     }
 
-    connection
-      .query(query)
-      .then(data => {
-        resolve(data);
-      })
-      .catch(error => {
-        reject(error);
-      });
-  });
+    return data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = {
-  ConsultarDados
+  ConsultarDados,
 };
 
+// Resto do código permanece igual
 
-//let codigo = "nome"
-//let awb = "Marcos Coelho"
-//ConsultarDados(codigo, awb)
+
+//let codigo = "codigo"
+//let awb = "123456784343434910";
+//let base = "IMP"
+
+//ConsultarDados(codigo, awb, base)
+//  .then(data => {
+//    console.log(data);
+//  })
+//  .catch(error => {
+///    console.error('Erro ao consultar os dados:', error);
+//  });

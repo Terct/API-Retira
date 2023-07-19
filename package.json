@@ -21,6 +21,8 @@
     "node-webcam": "^0.8.2",
     "npm": "^9.8.0",
     "qrcode-reader": "^1.0.4",
+    "sequelize": "^6.32.1",
+    "sqlite3": "^5.1.6",
     "zxing": "^0.1.2"
   }
 }
