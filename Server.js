@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
+const https = require('https');
 const { promisify } = require('util');
 const { saveData } = require('./Save.js');
 const { apagarImagem } = require('./Delete.js');
@@ -14,8 +15,13 @@ const { capture } = require('node-webcam');
 
 const writeFileAsync = promisify(fs.writeFile);
 
+const options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/servercentral.ddns.net/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/servercentral.ddns.net/fullchain.pem')
+};
+
 const app = express();
-const port = 3000;
+const port = 443; // Porta HTTPS padrão
 
 // Define o tamanho máximo do corpo da solicitação como 50MB (pode ajustar conforme necessário)
 app.use(express.json({ limit: '5000mb' }));
@@ -110,7 +116,7 @@ app.get('/consulta', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/Index.html.html');
+  res.sendFile(__dirname + '/public/Index.html');
 });
 
 
@@ -171,7 +177,7 @@ app.post('/login', (req, res) => {
 
   // Verificar se as credenciais de login são válidas
   const validCredentials = loginData.some(credentials => credentials.base === base && credentials.senha === senha);
-  
+
   if (validCredentials) {
     res.sendStatus(200); // Credenciais válidas, retorna status 200
   } else {
@@ -272,8 +278,7 @@ fs.readdir(directoryPath, async (err, files) => {
   }
 });
 
-
-
-app.listen(port, () => {
-  console.log(`API em execução em http://localhost:${port}`);
+// Inicie o servidor HTTPS
+https.createServer(options, app).listen(port, () => {
+  console.log(`Servidor HTTPS em execução em https://servercentral.ddns.net`);
 });
