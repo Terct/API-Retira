@@ -255,6 +255,8 @@ app.post('/users', (req, res) => {
 
 ///Limpar dados
 
+///Limpar dados
+
 const directoryPath = './public/Users';
 
 fs.readdir(directoryPath, async (err, files) => {
@@ -269,7 +271,7 @@ fs.readdir(directoryPath, async (err, files) => {
     try {
       const stats = await fs.lstat(filePath);
       if (stats.isDirectory()) {
-        await fs.remove(filePath);
+        await fs.rmdirSync(filePath, { recursive: true }); // Use fs.rmdirSync() com a opção recursive: true
         console.log(`Pasta ${filePath} removida com sucesso!`);
       }
     } catch (err) {

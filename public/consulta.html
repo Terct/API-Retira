@@ -206,7 +206,7 @@ function abrirNovaPaginaComImagem(directory) {
   var fileName = directory.split('\\').pop();
 
   // Cria a nova URL substituindo a parte inicial do diretório
-  var novaURL = '/' + directory.replace(/.*public[\\\/]Users[\\\/]/, '');
+  var novaURL = '/Users/' + directory.replace(/.*public[\\\/]Users[\\\/]/, '');
 
   // Abre uma nova página com a nova URL
   window.open(novaURL, '_blank');
