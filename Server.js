@@ -16,8 +16,8 @@ const { capture } = require('node-webcam');
 const writeFileAsync = promisify(fs.writeFile);
 
 const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/servercentral.ddns.net/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/servercentral.ddns.net/fullchain.pem')
+  key: fs.readFileSync(''),
+  cert: fs.readFileSync('')
 };
 
 const app = express();
@@ -282,5 +282,5 @@ fs.readdir(directoryPath, async (err, files) => {
 
 // Inicie o servidor HTTPS
 https.createServer(options, app).listen(port, () => {
-  console.log(`Servidor HTTPS em execução em https://servercentral.ddns.net`);
+  console.log(`Servidor HTTPS em execução!`);
 });
