@@ -2,7 +2,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 
 
-async function saveData(awb, data, entregador, recebedor, obs, capture1, capture2, codigoReferencia, base) {
+async function saveData(awb, data, entregador, recebedor, documento, obs, capture1, capture2, codigoReferencia, base) {
 
   const dbPath = path.join('DataBase', base,'Data.db');
   const sequelize = new Sequelize({
@@ -15,6 +15,7 @@ async function saveData(awb, data, entregador, recebedor, obs, capture1, capture
     Data: { type: DataTypes.STRING, allowNull: false },
     Entregador: { type: DataTypes.STRING, allowNull: false },
     Recebedor: { type: DataTypes.STRING, allowNull: false },
+    Documento: { type: DataTypes.STRING, allowNull: false },
     Obs: { type: DataTypes.STRING, allowNull: false },
     Capture1: { type: DataTypes.BOOLEAN, allowNull: false },
     Capture2: { type: DataTypes.BOOLEAN, allowNull: false },
@@ -30,6 +31,7 @@ async function saveData(awb, data, entregador, recebedor, obs, capture1, capture
       Data: data,
       Entregador: entregador,
       Recebedor: recebedor,
+      Documento : documento,
       Obs: obs,
       Capture1: capture1,
       Capture2: capture2,

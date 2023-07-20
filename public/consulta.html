@@ -135,6 +135,7 @@
               <th>Data</th>
               <th>Entregador</th>
               <th>Recebedor</th>
+              <th>Documento</th>
               <th>Obs</th>
               <th>Captura</th>
               <th>Anexo</th>
@@ -158,6 +159,7 @@ data.forEach(item => {
     <td>${item.Data}</td>
     <td>${item.Entregador}</td>
     <td>${item.Recebedor}</td>
+    <td>${item.Documento}</td>
     <td title="${item.Obs}">${item.Obs.length > 10 ? item.Obs.substr(0, 10) + '...' : item.Obs}</td>
     <td>${item.Capture1 ? `<a href="#" onclick="solicitarImagem('${item.CodigoReferencia}', 'Capture1', '${tokenParam}')">Visualizar</a>` : ''}</td>
     <td>${item.Capture2 ? `<a href="#" onclick="solicitarImagem('${item.CodigoReferencia}', 'Capture2', '${tokenParam}')">Visualizar</a>` : ''}</td>

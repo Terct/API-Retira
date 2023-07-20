@@ -64,6 +64,10 @@
     <div></div>
     <input id="Recebedor" type="text">
     <div></div>
+    <label for="Documento">Documento</label>
+    <div></div>
+    <input id="Documento" type="text">
+    <div></div>
     <label for="Obs">Observção</label>
     <div></div>
     <textarea id="Obs" type="text"></textarea>
@@ -370,6 +374,7 @@ function SalvarDados() {
   const data = document.getElementById('Data').textContent;
   const entregador = document.getElementById('Entregador').value;
   const recebedor = document.getElementById('Recebedor').value;
+  const documento= document.getElementById('Documento').value;
   const obs = document.getElementById('Obs').value;
   let captureImagem1 = false;
   let captureImagem2 = false;
@@ -406,6 +411,7 @@ if (imageContainer2.style.display == "none") {
     data,
     entregador,
     recebedor,
+    documento,
     obs,
     captureImagem1,
     captureImagem2,
