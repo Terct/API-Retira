@@ -51,11 +51,12 @@ module.exports = {
 
 
 
-// Exemplo de uso
+ //Exemplo de uso
 //const awb = '123456784343434910';
 //const data = '2023-07-12';
-///const entregador = 'Johnddddddddddd4444dffd444443434343444444444ddddddddd';
-//const recebedor = 'Janedddddddddddddd4444444fdfsfdfdfdf444444444dddddd';
+//const entregador = 'Johnddddddddddd4444dffd444443434343444444444ddddddddd';
+///const recebedor = 'Janedddddddddddddd4444444fdfsfdfdfdf444444444dddddd';
+//const doc = "32323"
 //const obs = 'Alguma observação';
 //const capture1 = true;
 //const capture2 = false;
@@ -63,4 +64,4 @@ module.exports = {
 //const base = "IMP"
 
 
-//saveData(awb, data, entregador, recebedor, obs, capture1, capture2, codigoReferencia, base);
+saveData(awb, data, entregador, recebedor, doc, obs, capture1, capture2, codigoReferencia, base);
