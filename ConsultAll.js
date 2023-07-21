@@ -15,6 +15,8 @@ async function ConsultarTodosDados(base) {
     Data: { type: DataTypes.STRING, allowNull: false },
     Entregador: { type: DataTypes.STRING, allowNull: false },
     Recebedor: { type: DataTypes.STRING, allowNull: false },
+    Documento: { type: DataTypes.STRING, allowNull: false },
+    Recebedor: { type: DataTypes.STRING, allowNull: false },
     Obs: { type: DataTypes.STRING, allowNull: false },
     Capture1: { type: DataTypes.BOOLEAN, allowNull: false },
     Capture2: { type: DataTypes.BOOLEAN, allowNull: false },

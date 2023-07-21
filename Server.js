@@ -76,6 +76,7 @@ app.post('/save', (req, res) => {
   const data = req.body.data;
   const entregador = req.body.entregador;
   const recebedor = req.body.recebedor;
+  const documento = req.body.documento;
   const obs = req.body.obs;
   const capture1 = req.body.captureImagem1;
   const capture2 = req.body.captureImagem2;
@@ -83,7 +84,7 @@ app.post('/save', (req, res) => {
   const base = req.body.baseParam;
 
   // Chamar a função saveData para salvar os dados no banco de dados
-  saveData(awb, data, entregador, recebedor, obs, capture1, capture2, codigoReferencia, base)
+  saveData(awb, data, entregador, recebedor, documento, obs, capture1, capture2, codigoReferencia, base)
     .then(() => {
       console.log('Dados salvos com sucesso!');
       res.sendStatus(200);
