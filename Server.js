@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
 const https = require('https');
+const http = require('http'); 
 const { promisify } = require('util');
 const { saveData } = require('./Save.js');
 const { apagarImagem } = require('./Delete.js');
@@ -281,7 +282,15 @@ fs.readdir(directoryPath, async (err, files) => {
   }
 });
 
-// Inicie o servidor HTTPS
-https.createServer(options, app).listen(port, () => {
-  console.log(`Servidor HTTPS em execução!`);
-});
+// Verifique se a porta desejada é a porta 443
+if (port === 443) {
+  // Se sim, inicie o servidor HTTPS
+  https.createServer(options, app).listen(port, () => {
+    console.log(`Servidor HTTPS em execução na porta ${port}!`);
+  });
+} else {
+  // Se não, inicie o servidor HTTP
+  http.createServer(app).listen(port, () => {
+    console.log(`Servidor HTTP em execução na porta ${port}!`);
+  });
+}
