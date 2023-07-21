@@ -294,3 +294,20 @@ if (port === 443) {
     console.log(`Servidor HTTP em execução na porta ${port}!`);
   });
 }
+
+const hostname = 'jajaexpress.ddns.net'; // ou o endereço IP do seu servidor local
+const port2 = 80;
+
+const server = http.createServer((req, res) => {
+  // Redirecionar para a URL local com HTTPS
+  const redirectTo = `https://${hostname}${req.url}`;
+  console.log(`Redirecionando para: ${redirectTo}`);
+  
+  // Configurar o cabeçalho de redirecionamento
+  res.writeHead(301, { Location: redirectTo });
+  res.end();
+});
+
+server.listen(port2, () => {
+  console.log(`Servidor Node.js rodando na porta ${port}`);
+});
