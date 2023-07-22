@@ -21,6 +21,7 @@ const Dados = sequelize.define('Dados', {
   Capture1: { type: DataTypes.BOOLEAN, allowNull: false },
   Capture2: { type: DataTypes.BOOLEAN, allowNull: false },
   CodigoReferencia: { type: DataTypes.STRING, allowNull: false },
+  Status: { type: DataTypes.STRING, allowNull: false },
 });
 
   try {
@@ -43,7 +44,7 @@ const Dados = sequelize.define('Dados', {
         break;
       case 'nome':
         
-        data = await Dados.findAll({ where: { Recebedor: valor } });
+        data = await Dados.findAll({ where: { Status: valor } });
 
         break;
       default:

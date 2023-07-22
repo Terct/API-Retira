@@ -1,8 +1,12 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 
-// Função para consultar todos os dados na tabela "Dados"
-async function ConsultarTodosDados(base) {
+// Função para consultar dados na tabela "Dados"
+async function BaixarAWB(base, CodRef) {
+
+    console.log(base)
+    console.log(CodRef)
+    console.log('teste')
 
   const dbPath = path.join('DataBase', base, 'Data.db'); // Atualize o caminho para o arquivo do banco de dados
   const sequelize = new Sequelize({
@@ -16,7 +20,6 @@ async function ConsultarTodosDados(base) {
     Entregador: { type: DataTypes.STRING, allowNull: false },
     Recebedor: { type: DataTypes.STRING, allowNull: false },
     Documento: { type: DataTypes.STRING, allowNull: false },
-    Recebedor: { type: DataTypes.STRING, allowNull: false },
     Obs: { type: DataTypes.STRING, allowNull: false },
     Capture1: { type: DataTypes.BOOLEAN, allowNull: false },
     Capture2: { type: DataTypes.BOOLEAN, allowNull: false },
@@ -28,27 +31,33 @@ async function ConsultarTodosDados(base) {
     await sequelize.authenticate(); // Conecta ao banco de dados
     await Dados.sync(); // Cria a tabela se ainda não existir
 
-    const todosOsDados = await Dados.findAll(); // Consulta todos os registros
-    return todosOsDados;
+    const data = await Dados.findAll({ where: { CodigoReferencia: CodRef } });
+
+    // Update the Status column to "Baixado" for the matching rows
+    for (const item of data) {
+      await item.update({ Status: 'Baixado' });
+    }
+
+    return data;
   } catch (error) {
     throw error;
   }
 }
 
-
-(async () => {
-    try {
-        
-    const base =  'IMP'
-      const todosOsDados = await ConsultarTodosDados(base);
-      todosOsDados.forEach((dado) => {
-        console.log(dado.toJSON()); // Isso exibe cada registro como um objeto JavaScript
-      });
-    } catch (error) {
-      console.error('Erro ao consultar dados:', error);
-    }
-  })();
-
 module.exports = {
-  ConsultarTodosDados,
+    BaixarAWB,
 };
+
+// Resto do código permanece igual
+
+// Example usage:
+ //let base = "IMP";
+ //let CodRef = "REddddddddd43434dfdffd3434343434dddddddddddddF3";
+
+ //BaixarAWB(base, CodRef)
+ //  .then(data => {
+ //    console.log(data);
+ //  })
+ //  .catch(error => {
+ //    console.error('Erro ao consultar os dados:', error);
+ //  });

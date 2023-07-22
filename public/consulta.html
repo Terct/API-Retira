@@ -33,7 +33,7 @@
       <input type="date" name="data" id="inputData">
       <br>
       <input type="radio" name="consulta" value="nome" id="radioNome">
-      <label for="radioNome">Nome de Recebedor:</label>
+      <label for="radioNome">Status</label>
       <input type="text" name="nome" id="inputNome" placeholder="Digite o nome">
       <br>
       <button type="submit" id="btnConsultar">Consultar</button>
@@ -45,11 +45,13 @@
             <th>Data</th>
             <th>Entregador</th>
             <th>Recebedor</th>
+            <th>Documento</th>
             <th>Obs</th>
             <th>Captura</th>
             <th>Anexo</th>
             <th>Codigo Referência</th> 
-            <th>Código</th>
+            <th>Status</th>
+            <th>Mudar Status</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -82,10 +84,16 @@
       
 
       // Define o manipulador de evento para o evento submit do formulário
+
+
       consultaForm.addEventListener('submit', function (event) {
         event.preventDefault();
         //showLoadingOverlay()
+        ConsultarBanco()
 
+      });
+
+      function ConsultarBanco() {
         // Obtém os valores dos campos de entrada
         const criterioSelecionado = document.querySelector('input[name="consulta"]:checked');
         if (!criterioSelecionado) {
@@ -140,7 +148,8 @@
               <th>Captura</th>
               <th>Anexo</th>
               <th>Codigo Referência</th>
-              <th>Código</th>
+              <th>Status</th>
+              <th>Mudar Status</th>
               
             `;
             resultadoConsulta.appendChild(headerRow);
@@ -149,6 +158,7 @@
 
           var urlParams = new URLSearchParams(window.location.search);
           var tokenParam = urlParams.get('token');
+          var baseParam = urlParams.get('base');
 
 
 // Preenche a tabela com os resultados da consulta
@@ -164,7 +174,11 @@ data.forEach(item => {
     <td>${item.Capture1 ? `<a href="#" onclick="solicitarImagem('${item.CodigoReferencia}', 'Capture1', '${tokenParam}')">Visualizar</a>` : ''}</td>
     <td>${item.Capture2 ? `<a href="#" onclick="solicitarImagem('${item.CodigoReferencia}', 'Capture2', '${tokenParam}')">Visualizar</a>` : ''}</td>
     <td title="${item.CodigoReferencia}">${item.CodigoReferencia.length > 10 ? item.CodigoReferencia.substr(0, 10) + '...' : item.CodigoReferencia}</td>
-    <td>${item.Código}</td>
+    <td>${item.Status}</td>
+    <td><button onclick="BaixarAWB('${baseParam}', '${item.CodigoReferencia}')">BAIXAR AWB</button></td>
+
+
+    
   `;
   resultadoConsulta.appendChild(row);
   hideLoadingOverlay()
@@ -176,7 +190,8 @@ data.forEach(item => {
           .catch(error => {
             console.error(error.message);
           });
-      });
+        
+        }      
 
 
       // Função para solicitar a imagem
@@ -202,6 +217,40 @@ function solicitarImagem(CodRef, CapType, UserName) {
       console.error(error.message);
     });
 }
+
+function BaixarAWB(baseParam, CodigoReferencia) {
+
+  console.log(baseParam)
+  console.log(CodigoReferencia)
+
+  fetch('/baixarawb', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ base: baseParam, CodRef: CodigoReferencia})
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro na solicitação. Verifique se a rota de visualização está correta.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data); // Manipule a resposta da solicitação de acordo com suas necessidades
+
+        
+      ConsultarBanco()
+
+    })
+    
+    .catch(error => {
+      console.error(error.message);
+      alert('Erro ao baixar AWB')
+    });
+}
+
+
 
 function abrirNovaPaginaComImagem(directory) {
   // Extrai o nome do arquivo da parte final do diretório

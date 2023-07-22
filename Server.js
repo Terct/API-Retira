@@ -11,18 +11,18 @@ const { renomearEMoverImagens } = require('./ArqImg.js');
 const { ConsultarDados } = require('./Consulta.js');
 const { BaixarImagem } = require('./View.js');
 const { capture } = require('node-webcam');
-
+const { BaixarAWB } = require('./Baixar.js')
 
 
 const writeFileAsync = promisify(fs.writeFile);
 
 const options = {
-  key: fs.readFileSync(''),
-  cert: fs.readFileSync('')
+  key: fs.readFileSync('Key.pem'),
+  cert: fs.readFileSync('Cert.pem')
 };
 
 const app = express();
-const port = 443; // Porta HTTPS padrão
+const port = 3000; // Porta HTTPS padrão
 
 // Define o tamanho máximo do corpo da solicitação como 50MB (pode ajustar conforme necessário)
 app.use(express.json({ limit: '5000mb' }));
@@ -255,7 +255,29 @@ app.post('/users', (req, res) => {
   });
 });
 
-///Limpar dados
+
+
+app.post('/baixarawb', (req, res) => {
+
+  console.log("BAIXANDO...")
+
+  const CodRef = req.body.CodRef;
+  const base = req.body.base;
+
+  BaixarAWB(base, CodRef)
+    .then((retorno) => {
+      // Aqui você pode acessar e manipular o valor retornado
+      console.log(retorno);
+      res.json({ directory: retorno }); // Enviar o diretório de destino como um objeto JSON
+    })
+    .catch((error) => {
+      console.error(error);
+      res.sendStatus(500); // Ou outro código de status de erro adequado
+    });
+});
+
+
+
 
 ///Limpar dados
 
@@ -309,5 +331,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port2, () => {
-  console.log(`Servidor Node.js rodando na porta ${port}`);
+  console.log(`Servidor rodando na porta ${port2}`);
 });
