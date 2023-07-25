@@ -15,11 +15,47 @@ const { BaixarAWB } = require('./Baixar.js')
 
 
 const writeFileAsync = promisify(fs.writeFile);
+// ... outros imports e código ...
+
+// Caminho da pasta onde os certificados estão armazenados
+const certFolderPath = '';
+
+// Caminho da pasta onde as chaves estão armazenadas
+const keyFolderPath = '';
+
+// Lista os arquivos na pasta de certificados
+const certFiles = fs.readdirSync(certFolderPath);
+
+// Lista os arquivos na pasta de chaves
+const keyFiles = fs.readdirSync(keyFolderPath);
+
+// Função para verificar se um arquivo é um certificado
+function isCertFile(file) {
+  return file.startsWith('jajaexpress_com_br_ce') && file.endsWith('.crt');
+}
+
+// Função para verificar se um arquivo é uma chave
+function isKeyFile(file) {
+  return file.startsWith('ce') && file.endsWith('.key');
+}
+
+// Filtra os arquivos para identificar os certificados e chaves
+const certFile = certFiles.find(isCertFile);
+const keyFile = keyFiles.find(isKeyFile);
+
+// Verifica se encontrou o certificado e a chave
+if (!certFile || !keyFile) {
+  console.error('Certificado ou chave não encontrados na pasta.');
+  process.exit(1); // Encerra o processo, pois não há certificado ou chave disponível.
+}
 
 const options = {
-  key: fs.readFileSync('Key.pem'),
-  cert: fs.readFileSync('Cert.pem')
+  key: fs.readFileSync(path.join(keyFolderPath, keyFile)),
+  cert: fs.readFileSync(path.join(certFolderPath, certFile))
 };
+
+// Restante do código do servidor...
+
 
 const app = express();
 const port = 3000; // Porta HTTPS padrão
@@ -317,7 +353,7 @@ if (port === 443) {
   });
 }
 
-const hostname = 'jajaexpress.ddns.net'; // ou o endereço IP do seu servidor local
+const hostname = 'jajaexpress.com.br'; // ou o endereço IP do seu servidor local
 const port2 = 80;
 
 const server = http.createServer((req, res) => {
